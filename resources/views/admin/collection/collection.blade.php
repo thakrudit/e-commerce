@@ -55,11 +55,13 @@
                         <div class="flex items-center gap-6">
                             <label class="flex items-center">
                                 <input type="radio" name="collection_type" value="custom" class="form-radio text-orange-500"
-                                    checked onchange="toggleCollectionType()">
+                                    {{ old('collection_type', 'custom') == 'custom' ? 'checked' : '' }}
+                                    onchange="toggleCollectionType()">
                                 <span class="ml-2 text-sm">Manual</span>
                             </label>
                             <label class="flex items-center">
                                 <input type="radio" name="collection_type" value="smart" class="form-radio text-orange-500"
+                                    {{ old('collection_type') === 'smart' ? 'checked' : '' }}
                                     onchange="toggleCollectionType()">
                                 <span class="ml-2 text-sm">Automatic</span>
                             </label>
@@ -89,6 +91,10 @@
                             <ul id="selected-products" class="flex flex-wrap gap-3">
                             </ul>
                         </div>
+
+                        @error('product_ids')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Automatic div -->
@@ -97,7 +103,7 @@
                             <!-- Column Selector -->
                             <div class="flex-1">
                                 <label for="column" class="block text-sm font-medium mb-1">Column</label>
-                                <select name="column" id="column"
+                                <select name="rules[0][column]" id="column"
                                     class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
                                     <option value="tag">Tag</option>
                                     <option value="category">Category</option>
@@ -107,7 +113,7 @@
                             <!-- Relation Selector -->
                             <div class="flex-1">
                                 <label for="relation" class="block text-sm font-medium mb-1">Relation</label>
-                                <select name="relation" id="relation"
+                                <select name="rules[0][relation]" id="relation"
                                     class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
                                     <option value="equals">is equal to</option>
                                     <option value="not_equals">is not equal to</option>
@@ -117,9 +123,13 @@
                             <!-- Condition Input -->
                             <div class="flex-1">
                                 <label for="condition" class="block text-sm font-medium mb-1">Condition</label>
-                                <input type="text" id="condition" name="condition" placeholder="Enter value..."
+                                <input type="text" id="condition" name="rules[0][condition]" placeholder="Enter value..."
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
                             </div>
+
+                            @error('rules.*.condition')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -235,14 +245,14 @@
             li.className = 'w-full flex items-center justify-between border-b border-gray-300 py-2';
             li.dataset.id = product.id;
             li.innerHTML = `
-                                                                                                                    <div class="flex items-center gap-2">
-                                                                                                                        <img src="http://localhost:8000/upload/category/1751530596.jpg" class="w-10 h-10 object-cover rounded" />
-                                                                                                                        <span class="text-sm text-gray-700">${product.title}</span>
-                                                                                                                    </div>
-                                                                                                                    <button type="button" class="text-gray-400 hover:text-red-500 transition" onclick="removeProduct(${product.id})">
-                                                                                                                        &times;
-                                                                                                                    </button>
-                                                                                                                `;
+                                                                                                                                                    <div class="flex items-center gap-2">
+                                                                                                                                                        <img src="http://localhost:8000/upload/category/1751530596.jpg" class="w-10 h-10 object-cover rounded" />
+                                                                                                                                                        <span class="text-sm text-gray-700">${product.title}</span>
+                                                                                                                                                    </div>
+                                                                                                                                                    <button type="button" class="text-gray-400 hover:text-red-500 transition" onclick="removeProduct(${product.id})">
+                                                                                                                                                        &times;
+                                                                                                                                                    </button>
+                                                                                                                                                `;
             document.getElementById('selected-products').appendChild(li);
             selectedProductsDiv.classList.remove("hidden")
 

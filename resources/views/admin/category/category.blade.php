@@ -26,7 +26,8 @@
 
         <!-- Category Table -->
         <div class="bg-white shadow rounded-lg overflow-hidden">
-            <form action="{{route('create.category')}}" method="POST" enctype="multipart/form-data" class="space-y-5">
+            <form action="{{route('create.category')}}" method="POST" enctype="multipart/form-data" class="space-y-5"
+                onsubmit="disableSubmitButton(this)">
                 @csrf
                 <div class="w-4xl flex flex-col gap-6 p-6 text-gray-700">
                     <!-- Name Field -->
@@ -73,4 +74,11 @@
 @endsection
 
 @section('scripts')
+    <script>
+        function disableSubmitButton(form) {
+            const btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = 'Submitting...';
+        }
+    </script>
 @endsection

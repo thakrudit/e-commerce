@@ -77,9 +77,10 @@ class AdminController extends Controller
             ]);
         } else {
             $rules = array_merge($commonRules, [
-                'column' => 'required|string|in:tag,category',
-                'relation' => 'required|string|in:equals,not_equals',
-                'condition' => 'required|string'
+                'rules' => 'required|array|min:1',
+                'rules.*.column' => 'required|string|in:tag,category',
+                'rules.*.relation' => 'required|string|in:equals,not_equals',
+                'rules.*.condition' => 'required|string'
             ]);
         }
 
@@ -98,9 +99,38 @@ class AdminController extends Controller
         if ($request->collection_type == 'custom') {
             $additionalData['products'] = $validated['product_ids'];
         } else {
-            $additionalData['column'] = $validated['column'];
-            $additionalData['relation'] = $validated['relation'];
-            $additionalData['condition'] = $validated['condition'];
+            $matchedProductIds = [];
+
+            foreach ($validated['rules'] as $rule) {
+                $column = $rule['column'];
+                $relation = $rule['relation'];
+                $condition = $rule['condition'];
+
+                $query = Product::query();
+
+                if ($column === 'tag') {
+                    if ($relation === 'equals') {
+                        $query->whereJsonContains('tags', $condition);
+                    } elseif ($relation === 'not_equals') {
+                        $query->whereJsonDoesntContain('tags', $condition);
+                    }
+                }
+
+                if ($column === 'category') {
+                    if ($relation === 'equals') {
+                        $query->where('product_type', $condition);
+                    } elseif ($relation === 'not_equals') {
+                        $query->where('product_type', '!=', $condition);
+                    }
+                }
+
+                $matchedIds = array_map('strval', $query->pluck('id')->toArray());
+                $matchedProductIds = array_merge($matchedProductIds, $matchedIds);
+            }
+            $matchedProductIds = array_unique($matchedProductIds);
+
+            $additionalData['rules'] = $validated['rules'];
+            $additionalData['products'] = $matchedProductIds;
         }
 
         $data = Collection::create([
@@ -117,15 +147,15 @@ class AdminController extends Controller
     public function generateUniqueHandle($title)
     {
         $base = Str::slug($title);
-        $original = $base;
         $counter = 1;
+        $original = "{$base}-{$counter}";
 
-        while (Collection::where('handle', $base)->exists()) {
+        while (Collection::where('handle', $original)->exists()) {
             $counter++;
-            $base = "{$original}-{$counter}";
+            $original = "{$base}-{$counter}";
         }
 
-        return $base;
+        return $original;
     }
     public function searchProduct(Request $request)
     {
