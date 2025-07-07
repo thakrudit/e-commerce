@@ -9,23 +9,28 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Log;
 
 class AdminController extends Controller
 {
     public function admin()
     {
-        return view('admin.index', ['title' => 'Dashboard']);
+        $title = 'Dashboard';
+        return view('admin.index', compact('title'));
     }
 
     // Category controllers
     public function allCategories()
     {
-        return view('admin.category.all-categories', ['title' => 'All Categories']);
+        $categories = Category::all();
+        $title = 'All Categories';
+        return view('admin.category.all-categories', compact('title', 'categories'));
     }
     public function category()
     {
-        return view('admin.category.category', ['title' => 'Category']);
+        $title = 'Category';
+        return view('admin.category.category', compact('title'));
     }
     public function createCategory(Request $request)
     {
@@ -51,15 +56,47 @@ class AdminController extends Controller
         ]);
         return redirect()->route('all.categories')->with("message", "Category created successfully!");
     }
+    public function editCategory($id)
+    {
+        $category = Category::find($id);
+        $title = 'Edit Category';
+        return view('admin.category.edit-category', compact('title', 'category'));
+    }
+    public function updateCategory(Request $request, $id)
+    {
+        $request->validate([
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('categories', 'name')->ignore($id),
+            ],
+            'description' => 'nullable|string',
+        ]);
+
+        $category = Category::findOrFail($id);
+        $category->name = $request->input('name', $category->name); // keep the old name
+        $category->description = $request->description;
+        $category->save();
+        return redirect()->route('all.categories')->with('message', 'Category updated successfully~!'); // this message showwn in popup
+    }
+    public function deleteCategory(Request $request, $id)
+    {
+        $category = Category::findOrFail($id);
+        $category->delete();
+        return redirect()->route('all.categories')->with('message', 'Category deleted successfully!'); // this message showwn in popup
+    }
 
     // Collection controllers
     public function allCollections()
     {
-        return view('admin.collection.all-collections', ['title' => 'All Collections']);
+        $collections = Collection::all();
+        $title = 'All Collections';
+        return view('admin.collection.all-collections', compact('collections', 'title'));
     }
     public function collection()
     {
-        return view('admin.collection.collection', ['title' => 'Collection']);
+        $title = 'Collection';
+        return view('admin.collection.collection', compact('title'));
     }
     public function createCollection(Request $request)
     {
@@ -168,62 +205,86 @@ class AdminController extends Controller
 
         return response()->json($products);
     }
+    public function editCollection($id)
+    {
+        $collection = Collection::find($id);
+        $title = 'Edit Collection';
+        return view('admin.collection.edit-collection', compact('title', 'collection'));
+    }
+    public function updateCollection(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'nullable|string',
+        ]);
+
+        $collection = Collection::findOrFail($id);
+        $collection->title = $request->title;
+        $collection->description = $request->description;
+        $collection->save();
+        return redirect()->route('all.collections')->with('message', 'Collection updated successfully~!'); // this message showwn in popup
+    }
+    public function deleteCollection(Request $request, $id)
+    {
+        $collection = Collection::findOrFail($id);
+        $collection->delete();
+        return redirect()->route('all.collections')->with('message', 'Collection deleted successfully!'); // this message showwn in popup
+    }
 
     // Product controllers
     public function allProducts()
     {
-        return view('admin.product.all-products', ['title' => 'All Products']);
+        $products = Product::all();
+        $title = 'All Products';
+        return view('admin.product.all-products', compact('title', 'products'));
     }
     public function product()
     {
-        return view('admin.product.product', ['title' => 'Product']);
+        $title = 'Product';
+        return view('admin.product.product', compact('title'));
     }
 
     // Order controllers
     public function allOrders()
     {
-        return view('admin.order.all-orders', ['title' => 'All Orders']);
+        $title = 'All Orders';
+        return view('admin.order.all-orders', compact('title'));
     }
 
     // User controllers
     public function allUsers()
     {
         $users = User::all();
-        // Log::info('All user:', ['users' => $users]);
         $title = 'All Users';
         return view('admin.user.all-users', compact('title', 'users'));
     }
     public function viewUser($id)
     {
         $user = User::find($id);
-        Log::info('View user:', ['user' => $user]);
-        $title = 'View Users';
+        $title = 'View User';
         return view('admin.user.view-user', compact('title', 'user'));
 
     }
     public function editUser($id)
     {
         $user = User::find($id);
-        $title = 'Edit Users';
-        // Log::info('Edit user:', ['user' => $user]);
+        $title = 'Edit User';
         return view('admin.user.edit-user', compact('title', 'user'));
-
     }
-    public function updateUser(Request $request)
+    public function updateUser(Request $request, $id)
     {
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        $user = User::findOrFail($request->id);
-        // Log::info('User log when edit', ['user'=> $user]);
+        $user = User::findOrFail($id);
         $user->name = $request->name;
         $user->save();
         return redirect()->route('all.users')->with('message', 'User updated successfully~!'); // this message showwn in popup
     }
-    public function deleteUser(Request $request)
+    public function deleteUser(Request $request, $id)
     {
-        $user = User::findOrFail($request->id);
+        $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('all.users')->with('message', 'User deleted successfully!'); // this message showwn in popup
     }

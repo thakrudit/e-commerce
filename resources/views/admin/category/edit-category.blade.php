@@ -23,15 +23,15 @@
             </form>
         </div>
 
-        <!-- Users Table -->
+        <!-- Category Table -->
         <div class="bg-white shadow rounded-lg overflow-hidden">
-            <form method="POST" action="{{ route('update.user', $user->id) }}">
+            <form method="POST" action="{{ route('update.category', $category->id) }}">
                 @csrf
                 @method('PUT')
 
                 <div class="flex items-center justify-between bg-gray-100 px-6 py-4 rounded-t-lg border-b border-gray-400">
                     <h4 class="text-lg font-semibold text-gray-800">{{ $title }}</h4>
-                    <a href="{{ route('all.users') }}"
+                    <a href="{{ route('all.categories') }}"
                         class="bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm font-medium px-4 py-2 rounded">
                         Cancel
                     </a>
@@ -42,25 +42,19 @@
                         <!-- Name -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1" for="name">Name</label>
-                            <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
+                            <input type="text" name="name" id="name" value="{{ old('name', $category->name) }}"
                                 class="w-full p-3 border border-gray-300 rounded bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
                         </div>
                         @error('name')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
 
-                        <!-- Email -->
+                        <!-- Description -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="email">Email</label>
-                            <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" readonly
-                                class="w-full p-3 border border-gray-300 rounded bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                        </div>
-
-                        <!-- Role -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="role">Role</label>
-                            <input type="role" name="role" id="role"
-                                value="{{ old('role', $user->role == "1" ? "Admin" : "User") }}" readonly
+                            <label class="block text-sm font-medium text-gray-700 mb-1"
+                                for="description">Description</label>
+                            <input type="text" name="description" id="description"
+                                value="{{ old('description', $category->description) }}"
                                 class="w-full p-3 border border-gray-300 rounded bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
                         </div>
                     </div>

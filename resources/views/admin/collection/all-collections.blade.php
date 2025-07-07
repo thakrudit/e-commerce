@@ -24,9 +24,48 @@
             </form>
         </div>
 
-        <!-- Category Table -->
+        <!-- Collection Table -->
         <div class="bg-white shadow rounded-lg overflow-hidden">
-            {{ $title }}
+            <table class="w-full text-left">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="px-4 py-3">Id</th>
+                        <th class="px-4 py-3">Title</th>
+                        <th class="px-4 py-3">Description</th>
+                        <th class="px-4 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    @forelse ($collections as $collection)
+                        <tr class="border-b border-gray-400">
+                            <td class="px-4 py-3">{{ $collection->id }}</td>
+                            <td class="px-4 py-3">{{ $collection->title }}</td>
+                            <td class="px-4 py-3">{{ $collection->description }}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('edit.collection', $collection->id) }}"
+                                        class="bg-orange-500 text-white px-4 py-1 rounded hover:bg-orange-600 transition duration-200">
+                                        Edit
+                                    </a>
+                                    <form method="POST" action="{{ route('delete.collection', $collection->id) }}"
+                                        class="inline">
+                                        @csrf
+                                        <button type="submit"
+                                            class="bg-orange-500 text-white px-4 py-1 rounded hover:bg-orange-600 transition duration-200">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-black font-semibold">No collection found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection

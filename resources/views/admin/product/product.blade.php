@@ -24,7 +24,7 @@
             </form>
         </div>
 
-        <!-- Category Table -->
+        <!-- Product Table -->
         <div class="bg-white shadow rounded-lg overflow-hidden">
             {{ $title }}
         </div>
